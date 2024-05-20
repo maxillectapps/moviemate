@@ -1,6 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:movie_mate/features/shows/data/data.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:movie_mate/config/helpers/widget_helper.dart';
+import 'package:movie_mate/features/shows/data/data.dart' hide Image;
+import 'package:readmore/readmore.dart';
+
+import '../../../../../core/core.dart';
+import '../../widgets/widgets.dart';
 
 class ShowDetails extends StatelessWidget {
   static const String routeName = '/show_details';
@@ -19,96 +25,117 @@ class ShowDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: 'https://example.com/spiderman.jpg',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      const Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Spider-Man',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Row(
-              children: <Widget>[
-                Icon(Icons.timer, size: 16),
-                SizedBox(width: 4),
-                Text('30 minutes'),
-                SizedBox(width: 16),
-                Icon(Icons.star, size: 16),
-                SizedBox(width: 4),
-                Text('6.7 (IMDb)'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Row(
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text('Premiered',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('Sept 9, 1967'),
-                    ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //Top Banners Starts Here
+          SizedBox(
+            height: getScreenSize(context).height * 0.33,
+            child: Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 1.5,
+                  child: CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    imageUrl: tvShow.show?.image?.original ?? '',
+                    placeholder: (context, url) {
+                      return const Center(
+                        child: CupertinoActivityIndicator(),
+                      );
+                    },
+                    errorWidget: (context, url, error) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50),
+                        child: Icon(
+                          Icons.image,
+                          size: 50,
+                        ),
+                      );
+                    },
                   ),
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text('Genre',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('Action, Sci-Fi'),
-                    ],
-                  ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.asset('assets/images/play_detail.png'),
                 ),
+                Positioned(
+                    top: 32,
+                    left: 24,
+                    child: IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                        )))
               ],
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Summary',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+          ),
+          //Top Banners Ends Here
+
+          //Show Details Starts Here
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppConstants.horizontalPadding,
+            ),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                tvShow.show?.name ?? '',
+                style: Theme.of(context).textTheme.displayLarge,
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'First airing on the ABC television network in 1967, the series revolves around the scientific-minded teenager Peter Parker who, after being bitten by a radioactive spider, develops amazing strength and spider-like powers. He decides to become a crime-fighting, costumed superhero; all the while dealing with his personal problems and the insecurities resulting from being a teenager.',
-              textAlign: TextAlign.justify,
-            ),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () {
-                // Implement navigation to a detailed page or action
-              },
-              child: const Text(
-                'Read more..',
-                style: TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                ),
+              verticalSpacing(12),
+              Row(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.timer_rounded,
+                        size: 14,
+                        color: AppColors.greyTextColor,
+                      ),
+                      horizontalSpacing(5),
+                      Text(
+                        '${tvShow.show?.runtime.toString()} minutes' ??
+                            '0 minutes',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge!
+                            .copyWith(color: AppColors.greyTextColor),
+                      ),
+                    ],
+                  ),
+                  horizontalSpacing(30),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        size: 14,
+                        color: AppColors.greyTextColor,
+                      ),
+                      horizontalSpacing(5),
+                      Text(
+                        '${tvShow.show?.rating?.average.toString()} (IMDb)' ??
+                            '0.0 (IMDb)',
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              color: AppColors.greyTextColor,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
+              const PremiereAndGenreWidget(),
+              Text(
+                'Summary',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              verticalSpacing(12),
+              MultilineText(text: tvShow.show?.summary ?? '', trimLines: 5),
+            ]),
+          )
+        ],
       ),
     );
   }

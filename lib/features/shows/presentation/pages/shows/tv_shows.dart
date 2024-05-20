@@ -8,7 +8,7 @@ import 'package:movie_mate/features/shows/presentation/widgets/widgets.dart';
 import '../../../../../core/core.dart';
 import '../../blocs/shows/shows_bloc.dart';
 
-class TvShows extends StatelessWidget {
+class TvShows extends StatefulWidget {
   static const String routeName = '/tv_shows';
 
   static Route route() {
@@ -18,8 +18,44 @@ class TvShows extends StatelessWidget {
   const TvShows({super.key});
 
   @override
+  State<TvShows> createState() => _TvShowsState();
+}
+
+class _TvShowsState extends State<TvShows> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Image.asset(
+              'assets/images/home.png',
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/images/play.png'),
+            label: 'Shows',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/images/profile.png'),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: AppColors.orangeLightColor,
+        onTap: _onItemTapped,
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
             horizontal: AppConstants.horizontalPadding,
